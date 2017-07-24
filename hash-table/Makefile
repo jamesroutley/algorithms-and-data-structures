@@ -3,12 +3,12 @@
 CFLAGS = -Wall -Werror -g
 
 build: clean
-	${CC} ${CFLAGS} -o hash_table hash_table.c xmalloc.c
+	${CC} ${CFLAGS} -o build/hash_table src/main.c src/hash_table.c src/xmalloc.c
 
 clean:
-	rm -f hash_table hash_table_test
-	rm -rf *.dSYM
+	rm -rf build/
+	mkdir -p build/
 
 test: clean
-	${CC} ${CFLAGS} -o hash_table_test hash_table.c hash_table_test.c xmalloc.c
-	./hash_table_test
+	${CC} ${CFLAGS} -o build/hash_table_test src/hash_table.c src/hash_table_test.c src/xmalloc.c
+	./build/hash_table_test

@@ -11,7 +11,7 @@ int HT_TABLE_SIZES[] = {53, 101, 211, 401, 809, 1601, 3203, 6421};
 
 
 ht_item* ht_new_item(char* k, char* v) {
-    ht_item* i;// = xmalloc(sizeof(ht_item));
+    ht_item* i = xmalloc(sizeof(ht_item));
     i->key = xmalloc(strlen(k) + 1);
     i->value = xmalloc(strlen(v) + 1);
     
