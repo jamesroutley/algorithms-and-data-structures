@@ -1,6 +1,6 @@
 .PHONY: clean
 
-CFLAGS = -Wall -Werror -g
+CFLAGS = -Wall -Werror -Wextra -g
 
 build: clean
 	${CC} ${CFLAGS} -o build/hash_table src/main.c src/hash_table.c src/xmalloc.c

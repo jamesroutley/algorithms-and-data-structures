@@ -22,10 +22,11 @@ typedef struct {
 } ht_hash_table;
 
 ht_hash_table* ht_new();
+void ht_del_hash_table(ht_hash_table* ht);
 
 int ht_hash(char* s, int m);
 void ht_insert(ht_hash_table* ht, ht_item* i);
 ht_item* ht_search(ht_hash_table* ht, char* key);
-void ht_delete(ht_hash_table* ht, ht_item* i);
+void ht_delete(ht_hash_table* h, ht_item* i);
 
 #endif  // HASH_TABLE_H_

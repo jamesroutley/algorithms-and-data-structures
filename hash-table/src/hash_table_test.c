@@ -39,6 +39,7 @@ static char* test_insert() {
     }
 
     // Tests passed
+    ht_del_hash_table(ht);
     return 0;
 }
 
@@ -48,6 +49,7 @@ static char* test_search_with_invalid_key() {
     ht_hash_table* ht = ht_new();
     ht_item* item = ht_search(ht, "invalid_key");
     mu_assert("error, invalid key should return NULL", item == NULL);
+    ht_del_hash_table(ht);
     return 0;
 }
 
@@ -58,6 +60,7 @@ static char* test_search_with_valid_key() {
     ht_insert(ht, insert_item);
     ht_item* item = ht_search(ht, "k");
     mu_assert("error, insert_item != item", insert_item == item); 
+    ht_del_hash_table(ht);
     return 0;
 }
 
@@ -79,6 +82,7 @@ static char* test_search_with_colliding_keys() {
     mu_assert("error, insert_item_a != item_a", insert_item_a == item_a); 
     mu_assert("error, insert_item_b != item_b", insert_item_b == item_b); 
 
+    ht_del_hash_table(ht);
     return 0;
 }
 
@@ -90,8 +94,8 @@ static char* test_delete() {
     ht_delete(ht, insert_item);
     ht_item* item = ht_search(ht, "k");
     mu_assert("error, item != NULL", item == NULL); 
+    ht_del_hash_table(ht);
     return 0;
-
 }
 
 
@@ -105,7 +109,7 @@ static char* all_tests() {
 }
 
 
-int main(int argc, char** argv) {
+int main() {
     char* result = all_tests();
     if (result != 0) {
         printf("%s\n", result);

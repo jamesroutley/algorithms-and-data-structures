@@ -36,8 +36,27 @@ ht_hash_table* ht_new() {
     ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
     ht->size_index = 0;
     ht->size = HT_TABLE_SIZES[ht->size_index];
-    ht->items = xcalloc(ht->size, sizeof(ht_item*));
+    ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
     return ht;
+}
+
+
+void ht_del_hash_table(ht_hash_table* ht) {
+    // Iterate through items and delete any that are found
+    for (int i = 0; i < ht->size; i++) {
+        if (ht->items[i] != NULL) {
+            // Something stored in bucket
+            ht_item* item = ht->items[i];
+            while (item != NULL) {
+                // Loop through list, deleting each item
+                ht_item* next_item = item->next;
+                ht_del_item(item);
+                item = next_item;
+            }
+        }
+    }
+    free(ht->items);
+    free(ht);
 }
 
 
@@ -48,9 +67,8 @@ int ht_hash(char* s, int m) {
     long hash = 0;
     int a = 128;  // Length of alphabet. ASCII codes are numbered 0 to 127.
     int len_s = strlen(s);
-
     for (int i = 0; i < len_s; i++) {
-        // Map char to a large integer 
+        /* Map char to a large integer */ 
         hash += (long)pow(a, len_s - (i+1)) * s[i];
         hash = hash % m;
     }
@@ -82,38 +100,27 @@ ht_item* ht_search(ht_hash_table* ht, char* key) {
 
     ht_item* item = ht->items[index];
 
-    // If the bucket is empty, return NULL
-    if (item == NULL) {
-        return NULL;
-    }
-
     // Else, iterate through the linked list searching for the key
-    while (item->next != NULL) {
+    while (item != NULL) {
         if (strcmp(item->key, key) == 0) {
             return item;
         }
         item = item->next;
     }
-    // TODO: this isn't so neat:
-    // If item is the last in the linked list, the while condition above
-    // evaluates false, exiting the while loop. We must check if the last item
-    // has the correct key.
-    if (strcmp(item->key, key) == 0) {
-        return item;
-    }
-
-    // Key wasn't found
     return NULL;
 }
 
 
 void ht_delete(ht_hash_table* ht, ht_item* i) {
+    // TODO: this code is quite clunky
     ht_item* previous = i->previous;
     ht_item* next = i->next;
 
     if (next == NULL && previous == NULL) {
+        int hash = ht_hash(i->key, ht->size);
         // Item is only thing in bucket
         ht_del_item(i);
+        ht->items[hash] = NULL;
         return; 
     } else if (next == NULL) {
         // Item is at the tail of the list
