@@ -10,7 +10,10 @@
 int HT_TABLE_SIZES[] = {53, 101, 211, 401, 809, 1601, 3203, 6421}; 
 
 
-ht_item* ht_new_item(char* k, char* v) {
+/*
+ * Initialises a new item containing k: v
+ */
+static ht_item* ht_new_item(char* k, char* v) {
     ht_item* i = xmalloc(sizeof(ht_item));
     i->key = xmalloc(strlen(k) + 1);
     i->value = xmalloc(strlen(v) + 1);
@@ -25,13 +28,19 @@ ht_item* ht_new_item(char* k, char* v) {
 }
 
 
-void ht_del_item(ht_item* i) {
+/*
+ * Deletes the ht_item i
+ */
+static void ht_del_item(ht_item* i) {
     free(i->key);
     free(i->value);
     free(i);
 }
 
 
+/*
+ * Initialises a new empty hash table
+ */
 ht_hash_table* ht_new() {
     ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
     ht->size_index = 0;
@@ -41,6 +50,9 @@ ht_hash_table* ht_new() {
 }
 
 
+/*
+ * Deletes the hash table
+ */
 void ht_del_hash_table(ht_hash_table* ht) {
     // Iterate through items and delete any that are found
     for (int i = 0; i < ht->size; i++) {
@@ -63,7 +75,7 @@ void ht_del_hash_table(ht_hash_table* ht) {
 /*
  * Returns the hash of 's', an int between 0 and 'm'.
  */
-int ht_hash(char* s, int m) {
+static int ht_hash(char* s, int m) {
     long hash = 0;
     int a = 128;  // Length of alphabet. ASCII codes are numbered 0 to 127.
     int len_s = strlen(s);
@@ -78,7 +90,11 @@ int ht_hash(char* s, int m) {
 }
 
 
-void ht_insert(ht_hash_table* ht, ht_item* i) {
+/*
+ * Inserts the 'key': 'value' pair into the hash table
+ */
+void ht_insert(ht_hash_table* ht, char* key, char* value) {
+    ht_item* i = ht_new_item(key, value);
     // TODO: increment load number
     int index = ht_hash(i->key, ht->size);
     // Nothing in bucket, store our item there
@@ -95,7 +111,10 @@ void ht_insert(ht_hash_table* ht, ht_item* i) {
 }
 
 
-ht_item* ht_search(ht_hash_table* ht, char* key) {
+/*
+ * Returns the item associated with 'key', or NULL if the key doesn't exist
+ */
+static ht_item* ht_search_item(ht_hash_table* ht, char* key) {
     int index = ht_hash(key, ht->size);
 
     ht_item* item = ht->items[index];
@@ -111,7 +130,23 @@ ht_item* ht_search(ht_hash_table* ht, char* key) {
 }
 
 
-void ht_delete(ht_hash_table* ht, ht_item* i) {
+/*
+ * Returns the value associated with 'key', or NULL if the key doesn't exist
+ */
+char* ht_search(ht_hash_table* ht, char* key) {
+    ht_item* i = ht_search_item(ht, key);
+    if (i == NULL) {
+        return NULL;
+    }
+    return i->value;
+}
+
+
+/*
+ * Deletes key's item from the hash table. Does nothing if 'key' doesn't exist
+ */
+void ht_delete(ht_hash_table* ht, char* key) {
+    ht_item* i = ht_search_item(ht, key);
     // TODO: this code is quite clunky
     ht_item* previous = i->previous;
     ht_item* next = i->next;

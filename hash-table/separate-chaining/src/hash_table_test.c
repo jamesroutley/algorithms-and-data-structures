@@ -7,16 +7,16 @@
 #define mu_assert(message, test) do { if (!(test)) return message; } while (0)
 #define mu_run_test(test) do { char *message = test(); tests_run++; \
                             if (message) return message; } while (0)
+#define strings_equal(a, b) strcmp(a, b) == 0
 
 
 int tests_run = 0;
 
 
 static char* test_insert() {
-    ht_item* item = ht_new_item("k", "v");
     ht_hash_table* ht = ht_new();
 
-    ht_insert(ht, item);
+    ht_insert(ht, "k", "v");
 
     // Check only one item in hash table
     int count = 0;
@@ -33,8 +33,6 @@ static char* test_insert() {
             ht_item* cur_item = ht->items[i];
             mu_assert("error, key != k", strcmp(cur_item->key, "k") == 0);
             mu_assert("error, key != v", strcmp(cur_item->value, "v") == 0);
-            mu_assert("error, next != NULL", cur_item->next == NULL);
-            mu_assert("error, previous != NULL", cur_item->previous == NULL);
         }
     }
 
@@ -47,8 +45,8 @@ static char* test_insert() {
 static char* test_search_with_invalid_key() {
     // New empty hash table
     ht_hash_table* ht = ht_new();
-    ht_item* item = ht_search(ht, "invalid_key");
-    mu_assert("error, invalid key should return NULL", item == NULL);
+    char* value = ht_search(ht, "invalid_key");
+    mu_assert("error, invalid key should return NULL", value == NULL);
     ht_del_hash_table(ht);
     return 0;
 }
@@ -56,10 +54,9 @@ static char* test_search_with_invalid_key() {
 
 static char* test_search_with_valid_key() {
     ht_hash_table* ht = ht_new();
-    ht_item* insert_item = ht_new_item("k", "v");
-    ht_insert(ht, insert_item);
-    ht_item* item = ht_search(ht, "k");
-    mu_assert("error, insert_item != item", insert_item == item); 
+    ht_insert(ht, "k", "v");
+    char* value = ht_search(ht, "k");
+    mu_assert("error, unexpected value", strings_equal(value, "v")); 
     ht_del_hash_table(ht);
     return 0;
 }
@@ -70,17 +67,16 @@ static char* test_search_with_colliding_keys() {
     // ht_hash, with an m value of 53.
     ht_hash_table* ht = ht_new();
 
-    ht_item* insert_item_a = ht_new_item("bz", "bz val");
-    ht_item* insert_item_b = ht_new_item("4", "4 val");
+    ht_insert(ht, "bz", "bz value");
+    ht_insert(ht, "4", "4 value");
 
-    ht_insert(ht, insert_item_a);
-    ht_insert(ht, insert_item_b);
+    char* value_a = ht_search(ht, "bz");
+    char* value_b = ht_search(ht, "4");
 
-    ht_item* item_a = ht_search(ht, "bz");
-    ht_item* item_b = ht_search(ht, "4");
-
-    mu_assert("error, insert_item_a != item_a", insert_item_a == item_a); 
-    mu_assert("error, insert_item_b != item_b", insert_item_b == item_b); 
+    mu_assert("error, insert_item_a != item_a", 
+        strings_equal(value_a, "bz value")); 
+    mu_assert("error, insert_item_b != item_b", 
+        strings_equal(value_b, "4 value")); 
 
     ht_del_hash_table(ht);
     return 0;
@@ -89,11 +85,10 @@ static char* test_search_with_colliding_keys() {
 
 static char* test_delete() {
     ht_hash_table* ht = ht_new();
-    ht_item* insert_item = ht_new_item("k", "v");
-    ht_insert(ht, insert_item);
-    ht_delete(ht, insert_item);
-    ht_item* item = ht_search(ht, "k");
-    mu_assert("error, item != NULL", item == NULL); 
+    ht_insert(ht, "k", "v");
+    ht_delete(ht, "k");
+    char* value = ht_search(ht, "k");
+    mu_assert("error, value != NULL", value == NULL); 
     ht_del_hash_table(ht);
     return 0;
 }
