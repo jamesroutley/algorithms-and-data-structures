@@ -103,9 +103,7 @@ void ht_insert(ht_hash_table* ht, char* key, char* value) {
         return;
     }
 
-    // Collision. Store i in the bucket, and add the linked list to i->next.
-    // This makes inserting into a collided bucket O(1), rather than O(n) if we
-    // insert at the tail of the linked list.
+    // Collision, add i to head of linked list.
     i->next = ht->items[index];
     ht->items[index] = i;
 }
