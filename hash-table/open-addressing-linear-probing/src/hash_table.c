@@ -137,7 +137,7 @@ void ht_insert(ht_hash_table* ht, char* key, char* value) {
     int index = ht_hash(i->key, ht->size);
 
     // Collision
-    int jump = 3;
+    int jump = 1;
     while (ht->items[index] != NULL) {
         index += jump;
         index = index % ht->size;
@@ -155,7 +155,7 @@ void ht_insert(ht_hash_table* ht, char* key, char* value) {
 char* ht_search(ht_hash_table* ht, char* key) {
     int index = ht_hash(key, ht->size);
 
-    int jump = 3;
+    int jump = 1;
     while (ht->items[index] != NULL) {
         if (strcmp(ht->items[index]->key, key) == 0) {
             return ht->items[index]->value;
@@ -179,7 +179,7 @@ void ht_delete(ht_hash_table* ht, char* key) {
     ht->load--;
 
     int index = ht_hash(key, ht->size);
-    int jump = 3;
+    int jump = 1;
     while (ht->items[index] != NULL) {
         if (strcmp(ht->items[index]->key, key) == 0) {
             ht_del_item(ht->items[index]);
