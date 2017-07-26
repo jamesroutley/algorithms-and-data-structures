@@ -94,12 +94,50 @@ static char* test_delete() {
 }
 
 
+static char* test_resize_up() {
+    // Smallest ht size is 53. Table resizes when a load ratio of 0.7 is hit.
+    // This should happen on the 38'th insert.
+    ht_hash_table* ht = ht_new();
+    for (int i = 0; i < 38; i++) {
+        char key[10];
+        snprintf(key, 10, "%d", i);
+        ht_insert(ht, key, "value");
+    }
+    mu_assert("error, ht should be size 53", ht->size == 53);
+
+    ht_insert(ht, "one extra", "value");
+    mu_assert("error, ht should be size 101", ht->size == 101);
+
+    return 0;
+}
+
+
+static char* test_resize_down() {
+    // Smallest ht size is 53. Table resizes when a load ratio of 0.7 is hit.
+    // This should happen on the 38'th insert.
+    ht_hash_table* ht = ht_new();
+    for (int i = 0; i < 39; i++) {
+        char key[10];
+        snprintf(key, 10, "%d", i);
+        ht_insert(ht, key, "value");
+    }
+    mu_assert("error, ht should be size 101", ht->size == 101);
+
+    ht_delete(ht, "0");
+    mu_assert("error, ht should be size 53", ht->size == 101);
+
+    return 0;
+}
+
+
 static char* all_tests() {
     mu_run_test(test_insert);
     mu_run_test(test_search_with_invalid_key);
     mu_run_test(test_search_with_valid_key);
     mu_run_test(test_search_with_colliding_keys);
     mu_run_test(test_delete);
+    mu_run_test(test_resize_up);
+    mu_run_test(test_resize_down);
     return 0;
 }
 

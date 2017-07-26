@@ -36,14 +36,24 @@ static void ht_del_item(ht_item* i) {
 
 
 /*
+ * Initialises a new empty hash table using a particular size index
+ */
+ht_hash_table* ht_new_sized(int size_index) {
+    // TODO: check the bounds of size_index
+    ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
+    ht->size_index = size_index;
+    ht->size = HT_TABLE_SIZES[ht->size_index];
+    ht->load = 0;
+    ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
+    return ht;
+}
+
+
+/*
  * Initialises a new empty hash table
  */
 ht_hash_table* ht_new() {
-    ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
-    ht->size_index = 0;
-    ht->size = HT_TABLE_SIZES[ht->size_index];
-    ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
-    return ht;
+    return ht_new_sized(0);
 }
 
 
@@ -59,6 +69,40 @@ void ht_del_hash_table(ht_hash_table* ht) {
     }
     free(ht->items);
     free(ht);
+}
+
+
+/*
+ * Resize ht
+ */
+static void ht_resize(ht_hash_table* ht, int direction) {
+    int new_size_index = ht->size_index + direction;
+    if (new_size_index < 0) {
+        // Don't resize down the smallest hash table
+        return;
+    }
+    // Create a temporary new hash table to insert items into
+    ht_hash_table* new_ht = ht_new_sized(new_size_index);
+    // Iterate through existing hash table, add all items to new
+    for (int i = 0; i < ht->size; i++) {
+        if (ht->items[i] != NULL) {
+            ht_insert(new_ht, ht->items[i]->key, ht->items[i]->value);
+        }
+    }
+
+    // Swap ht and new_ht's properties. Delete new_ht
+    int tmp_size_index = ht->size_index;
+    ht->size_index = new_ht->size_index;
+    new_ht->size_index = tmp_size_index;
+
+    int tmp_size = ht->size;
+    ht->size = new_ht->size;
+    new_ht->size = tmp_size;
+
+    ht_item** tmp_items = ht->items;
+    ht->items = new_ht->items;
+    new_ht->items = tmp_items;
+    ht_del_hash_table(new_ht);
 }
 
 
@@ -84,10 +128,14 @@ static int ht_hash(char* s, int m) {
  * Inserts the 'key': 'value' pair into the hash table
  */
 void ht_insert(ht_hash_table* ht, char* key, char* value) {
-    // TODO: increment load number
+    float load_ratio = (float)ht->load / ht->size;
+    if (load_ratio > 0.7) {
+        ht_resize(ht, 1);
+    }
+    ht->load++;
     ht_item* i = ht_new_item(key, value);
     int index = ht_hash(i->key, ht->size);
-    
+
     // Collision
     int jump = 3;
     while (ht->items[index] != NULL) {
@@ -124,6 +172,12 @@ char* ht_search(ht_hash_table* ht, char* key) {
  * Deletes key's item from the hash table. Does nothing if 'key' doesn't exist
  */
 void ht_delete(ht_hash_table* ht, char* key) {
+    float load_ratio = (float)ht->load / ht->size;
+    if (load_ratio < 0.1) {
+        ht_resize(ht, -1);
+    }
+    ht->load--;
+
     int index = ht_hash(key, ht->size);
     int jump = 3;
     while (ht->items[index] != NULL) {

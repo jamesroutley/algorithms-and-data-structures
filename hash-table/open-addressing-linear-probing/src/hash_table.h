@@ -13,8 +13,7 @@ struct ht_item {
 typedef struct {
     int size_index;
     int size;
-    // TODO: we're storing an array of pointers to items - this is maybe
-    // wasted space?
+    int load;
     ht_item** items;
 } ht_hash_table;
 
