@@ -115,7 +115,6 @@ static void ht_resize(ht_hash_table* ht, int direction) {
  */
 static int ht_generic_hash(char* s, int a, int m) {
     long hash = 0;
-    /* int a = 128;  // Length of alphabet. ASCII codes are numbered 0 to 127. */
     int len_s = strlen(s);
     for (int i = 0; i < len_s; i++) {
         /* Map char to a large integer */ 
