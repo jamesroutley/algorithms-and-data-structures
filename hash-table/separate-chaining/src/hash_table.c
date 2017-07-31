@@ -95,7 +95,6 @@ static int ht_hash(char* s, int m) {
  */
 void ht_insert(ht_hash_table* ht, char* key, char* value) {
     ht_item* i = ht_new_item(key, value);
-    // TODO: increment load number
     int index = ht_hash(i->key, ht->size);
     // Nothing in bucket, store our item there
     if (ht->items[index] == NULL) { 
@@ -103,7 +102,7 @@ void ht_insert(ht_hash_table* ht, char* key, char* value) {
         return;
     }
 
-    // Collision, add i to head of linked list.
+    // Collision, Add i to head of linked list.
     i->next = ht->items[index];
     ht->items[index] = i;
 }
