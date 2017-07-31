@@ -108,6 +108,7 @@ static char* test_resize_up() {
     ht_insert(ht, "one extra", "value");
     mu_assert("error, ht should be size 101", ht->size == 101);
 
+    ht_del_hash_table(ht);
     return 0;
 }
 
@@ -123,9 +124,17 @@ static char* test_resize_down() {
     }
     mu_assert("error, ht should be size 101", ht->size == 101);
 
-    ht_delete(ht, "0");
-    mu_assert("error, ht should be size 53", ht->size == 101);
+    // Hash table should resize down when we hit 10 objects.
+    for (int i = 0; i < 30; i++) {
+        char key[10];
+        snprintf(key, 10, "%d", i);
+        ht_delete(ht, key);
+    }
 
+    /* ht_delete(ht, "0"); */
+    mu_assert("error, ht should be size 53", ht->size == 53);
+
+    ht_del_hash_table(ht);
     return 0;
 }
 
