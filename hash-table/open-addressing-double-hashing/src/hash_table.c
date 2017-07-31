@@ -1,13 +1,11 @@
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "xmalloc.h"
 
 #include "hash_table.h"
-
-int HT_TABLE_SIZES[] = {53, 101, 211, 401, 809, 1601, 3203, 6421}; 
+#include "prime.h"
 
 
 // HT_DELETED_ITEM is used to mark a bucket containing a deleted item
@@ -43,10 +41,12 @@ static void ht_del_item(ht_item* i) {
  * Initialises a new empty hash table using a particular size index
  */
 static ht_hash_table* ht_new_sized(int size_index) {
-    // TODO: check the bounds of size_index
     ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
     ht->size_index = size_index;
-    ht->size = HT_TABLE_SIZES[ht->size_index];
+
+    int base_size = 50 * pow(2, ht->size_index);
+    ht->size = next_prime(base_size);
+
     ht->load = 0;
     ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
     return ht;

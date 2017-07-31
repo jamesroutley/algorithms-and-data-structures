@@ -10,7 +10,9 @@ clean:
 	mkdir -p build/
 
 build-test: clean
-	${CC} ${CFLAGS} -o build/hash_table_test src/hash_table.c src/hash_table_test.c src/xmalloc.c
+	${CC} ${CFLAGS} -o build/hash_table_test src/hash_table.c src/hash_table_test.c src/xmalloc.c src/prime.c
+	${CC} ${CFLAGS} -o build/prime_test src/prime_test.c src/prime.c
 
 test: build-test 
 	./build/hash_table_test
+	./build/prime_test
