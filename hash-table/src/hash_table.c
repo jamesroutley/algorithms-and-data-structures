@@ -9,7 +9,11 @@
 
 
 // HT_DELETED_ITEM is used to mark a bucket containing a deleted item
-static ht_item* HT_DELETED_ITEM = &(ht_item) {NULL, NULL};
+static ht_item HT_DELETED_ITEM = {NULL, NULL};
+
+// HT_PRIMEs are parameters in the hashing algorithm
+static int HT_PRIME_1 = 151;
+static int HT_PRIME_2 = 163;
 
 
 /*
@@ -17,12 +21,8 @@ static ht_item* HT_DELETED_ITEM = &(ht_item) {NULL, NULL};
  */
 static ht_item* ht_new_item(char* k, char* v) {
     ht_item* i = xmalloc(sizeof(ht_item));
-    i->key = xmalloc(strlen(k) + 1);
-    i->value = xmalloc(strlen(v) + 1);
-    
-    strcpy(i->key, k);
-    strcpy(i->value, v);
-
+    i->key = strdup(k);
+    i->value = strdup(v);
     return i;
 }
 
@@ -44,7 +44,7 @@ static ht_hash_table* ht_new_sized(int size_index) {
     ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
     ht->size_index = size_index;
 
-    int base_size = 50 * pow(2, ht->size_index);
+    int base_size = 50 << ht->size_index;
     ht->size = next_prime(base_size);
 
     ht->count = 0;
@@ -67,8 +67,9 @@ ht_hash_table* ht_new() {
 void ht_del_hash_table(ht_hash_table* ht) {
     // Iterate through items and delete any that are found
     for (int i = 0; i < ht->size; i++) {
-        if (ht->items[i] != NULL && ht->items[i] != HT_DELETED_ITEM) {
-            ht_del_item(ht->items[i]);
+        ht_item* item = ht->items[i];
+        if (item != NULL && item != &HT_DELETED_ITEM) {
+            ht_del_item(item);
         }
     }
     free(ht->items);
@@ -89,8 +90,9 @@ static void ht_resize(ht_hash_table* ht, int direction) {
     ht_hash_table* new_ht = ht_new_sized(new_size_index);
     // Iterate through existing hash table, add all items to new
     for (int i = 0; i < ht->size; i++) {
-        if (ht->items[i] != NULL && ht->items[i] != HT_DELETED_ITEM) {
-            ht_insert(new_ht, ht->items[i]->key, ht->items[i]->value);
+        ht_item* item = ht->items[i];
+        if (item != NULL && item != &HT_DELETED_ITEM) {
+            ht_insert(new_ht, item->key, item->value);
         }
     }
 
@@ -129,8 +131,8 @@ static int ht_generic_hash(char* s, int a, int m) {
 
 
 static int ht_hash(char* s, int num_buckets, int attempt) {
-    int hash_a = ht_generic_hash(s, 151, num_buckets);
-    int hash_b = ht_generic_hash(s, 163, num_buckets);
+    int hash_a = ht_generic_hash(s, HT_PRIME_1, num_buckets);
+    int hash_b = ht_generic_hash(s, HT_PRIME_2, num_buckets);
     return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
 }
 
@@ -139,17 +141,20 @@ static int ht_hash(char* s, int num_buckets, int attempt) {
  * Inserts the 'key': 'value' pair into the hash table
  */
 void ht_insert(ht_hash_table* ht, char* key, char* value) {
-    float load = (float)ht->count / ht->size;
-    if (load > 0.7) {
+    // Resize if load > 0.7
+    int load = ht->count * 100 / ht->size;
+    if (load > 70) {
         ht_resize(ht, 1);
     }
     ht_item* item = ht_new_item(key, value);
 
     // Cycle though filled buckets until we hit an empty or deleted one
     int index = ht_hash(item->key, ht->size, 0);
+    ht_item* cur_item = ht->items[index];
     int i = 1;
-    while (ht->items[index] != NULL && ht->items[index] != HT_DELETED_ITEM) {
+    while (cur_item != NULL && cur_item != &HT_DELETED_ITEM) {
         index = ht_hash(item->key, ht->size, i);
+        cur_item = ht->items[index];
         i++;
     } 
 
@@ -164,12 +169,14 @@ void ht_insert(ht_hash_table* ht, char* key, char* value) {
  */
 char* ht_search(ht_hash_table* ht, char* key) {
     int index = ht_hash(key, ht->size, 0);
+    ht_item* item = ht->items[index];
     int i = 1;
-    while (ht->items[index] != NULL && ht->items[index] != HT_DELETED_ITEM) {
-        if (strcmp(ht->items[index]->key, key) == 0) {
-            return ht->items[index]->value;
+    while (item != NULL && item != &HT_DELETED_ITEM) {
+        if (strcmp(item->key, key) == 0) {
+            return item->value;
         }
         index = ht_hash(key, ht->size, i);
+        item = ht->items[index];
         i++;
     } 
     return NULL;
@@ -180,19 +187,22 @@ char* ht_search(ht_hash_table* ht, char* key) {
  * Deletes key's item from the hash table. Does nothing if 'key' doesn't exist
  */
 void ht_delete(ht_hash_table* ht, char* key) {
-    float load = (float)ht->count / ht->size;
-    if (load < 0.1) {
+    // Resize if load < 0.1
+    int load = ht->count * 100 / ht->size;
+    if (load < 10) {
         ht_resize(ht, -1);
     }
 
     int index = ht_hash(key, ht->size, 0);
+    ht_item* item = ht->items[index];
     int i = 1;
-    while (ht->items[index] != NULL && ht->items[index] != HT_DELETED_ITEM) {
-        if (strcmp(ht->items[index]->key, key) == 0) {
-            ht_del_item(ht->items[index]);
-            ht->items[index] = HT_DELETED_ITEM;
+    while (item != NULL && item != &HT_DELETED_ITEM) {
+        if (strcmp(item->key, key) == 0) {
+            ht_del_item(item);
+            ht->items[index] = &HT_DELETED_ITEM;
         }
         index = ht_hash(key, ht->size, i);
+        item = ht->items[index];
         i++;
     } 
     ht->count--;
