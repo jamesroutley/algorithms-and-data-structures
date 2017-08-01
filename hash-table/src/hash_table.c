@@ -94,22 +94,19 @@ static void ht_resize(ht_hash_table* ht, int direction) {
         }
     }
 
-    // Swap ht and new_ht's properties. Delete new_ht
-    int tmp_size_index = ht->size_index;
+    // Pass new_ht and ht's properties. Delete new_ht
     ht->size_index = new_ht->size_index;
-    new_ht->size_index = tmp_size_index;
+    ht->count = new_ht->count;
 
+    // To delete new_ht, we give it ht's size and items 
     int tmp_size = ht->size;
     ht->size = new_ht->size;
     new_ht->size = tmp_size;
 
-    int tmp_count = ht->count;
-    ht->count = new_ht->count;
-    new_ht->count = tmp_count;
-
     ht_item** tmp_items = ht->items;
     ht->items = new_ht->items;
     new_ht->items = tmp_items;
+
     ht_del_hash_table(new_ht);
 }
 
