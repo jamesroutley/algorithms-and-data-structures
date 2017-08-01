@@ -188,7 +188,6 @@ void ht_delete(ht_hash_table* ht, char* key) {
         // TODO: rename to resize_down
         ht_resize(ht, -1);
     }
-    ht->count--;
 
     int index = ht_hash(key, ht->size, 0);
     int i = 1;
@@ -200,4 +199,5 @@ void ht_delete(ht_hash_table* ht, char* key) {
         index = ht_hash(key, ht->size, i);
         i++;
     } 
+    ht->count--;
 }
