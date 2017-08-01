@@ -1,6 +1,4 @@
 # Hash table
 
-Two implementations of a hash table, which implement collision handling with:
-
-- Separate chaining
-- Open addressing with quadratic probing
+An implementation of a hash table, using open addressing with double hashing to
+handle collisions.
