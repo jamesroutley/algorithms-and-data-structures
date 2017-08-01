@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "hash_table.h"
+#include "../src/hash_table.h"
 
 // MinUnit testing framework. http://www.jera.com/techinfo/jtns/jtn002.html
 #define mu_assert(message, test) do { if (!(test)) return message; } while (0)

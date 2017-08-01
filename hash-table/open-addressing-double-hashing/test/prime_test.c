@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "prime.h"
+#include "../src/prime.h"
 
 // MinUnit testing framework. http://www.jera.com/techinfo/jtns/jtn002.html
 #define mu_assert(message, test) do { if (!(test)) return message; } while (0)
