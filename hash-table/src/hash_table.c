@@ -126,8 +126,8 @@ static int ht_generic_hash(const char* s, int a, int m) {
 
 
 static int ht_hash(char* s, int num_buckets, int attempt) {
-    int hash_a = ht_generic_hash(s, 151, num_buckets);
-    int hash_b = ht_generic_hash(s, 163, num_buckets);
+    int hash_a = ht_generic_hash(s, PRIME1, num_buckets);
+    int hash_b = ht_generic_hash(s, PRIME2, num_buckets);
     return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
 }
 
@@ -177,8 +177,8 @@ char* ht_search(ht_hash_table* ht, char* key) {
  * Deletes key's item from the hash table. Does nothing if 'key' doesn't exist
  */
 void ht_delete(ht_hash_table* ht, char* key) {
-    float load = (float)ht->count / ht->size;
-    if (load < 0.1) {
+    int load = ht->count*100 / ht->size;
+    if (load < 10) {
         ht_resize(ht, -1);
     }
 
