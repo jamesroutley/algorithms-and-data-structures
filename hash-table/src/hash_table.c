@@ -185,7 +185,6 @@ char* ht_search(ht_hash_table* ht, char* key) {
 void ht_delete(ht_hash_table* ht, char* key) {
     float load = (float)ht->count / ht->size;
     if (load < 0.1) {
-        // TODO: rename to resize_down
         ht_resize(ht, -1);
     }
 
