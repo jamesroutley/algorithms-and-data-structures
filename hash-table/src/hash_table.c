@@ -47,7 +47,7 @@ static ht_hash_table* ht_new_sized(int size_index) {
     int base_size = 50 * pow(2, ht->size_index);
     ht->size = next_prime(base_size);
 
-    ht->load = 0;
+    ht->count = 0;
     ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
     return ht;
 }
@@ -103,9 +103,9 @@ static void ht_resize(ht_hash_table* ht, int direction) {
     ht->size = new_ht->size;
     new_ht->size = tmp_size;
 
-    int tmp_load = ht->load;
-    ht->load = new_ht->load;
-    new_ht->load = tmp_load;
+    int tmp_count = ht->count;
+    ht->count = new_ht->count;
+    new_ht->count = tmp_count;
 
     ht_item** tmp_items = ht->items;
     ht->items = new_ht->items;
@@ -142,8 +142,8 @@ static int ht_hash(char* s, int num_buckets, int attempt) {
  * Inserts the 'key': 'value' pair into the hash table
  */
 void ht_insert(ht_hash_table* ht, char* key, char* value) {
-    float load_ratio = (float)ht->load / ht->size;
-    if (load_ratio > 0.7) {
+    float load = (float)ht->count / ht->size;
+    if (load > 0.7) {
         ht_resize(ht, 1);
     }
     ht_item* item = ht_new_item(key, value);
@@ -158,7 +158,7 @@ void ht_insert(ht_hash_table* ht, char* key, char* value) {
 
     // index points to a free bucket
     ht->items[index] = item;
-    ht->load++;
+    ht->count++;
 }
 
 
@@ -183,12 +183,12 @@ char* ht_search(ht_hash_table* ht, char* key) {
  * Deletes key's item from the hash table. Does nothing if 'key' doesn't exist
  */
 void ht_delete(ht_hash_table* ht, char* key) {
-    float load_ratio = (float)ht->load / ht->size;
-    if (load_ratio < 0.1) {
+    float load = (float)ht->count / ht->size;
+    if (load < 0.1) {
         // TODO: rename to resize_down
         ht_resize(ht, -1);
     }
-    ht->load--;
+    ht->count--;
 
     int index = ht_hash(key, ht->size, 0);
     int i = 1;

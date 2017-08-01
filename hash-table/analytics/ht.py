@@ -13,7 +13,7 @@ class hash_table(Structure):
     _fields_ = [
         ("size_index", c_int),
         ("size", c_int),
-        ("load", c_int),
+        ("count", c_int),
         ("items", POINTER(POINTER(item)))
     ]
 
