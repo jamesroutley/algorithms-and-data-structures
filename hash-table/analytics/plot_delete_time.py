@@ -20,7 +20,7 @@ def plot(x, y):
 
 
 if __name__ == "__main__":
-    num_items = 1000
+    num_items = 10000
 
     hash_table = ht.new()
 
