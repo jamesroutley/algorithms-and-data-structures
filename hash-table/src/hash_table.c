@@ -9,8 +9,7 @@
 
 
 // HT_DELETED_ITEM is used to mark a bucket containing a deleted item
-static ht_item* HT_DELETED_ITEM = &(ht_item) {NULL, NULL};
-
+static ht_item HT_DELETED_ITEM = {NULL, NULL};
 
 /*
  * Initialises a new item containing k: v
