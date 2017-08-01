@@ -42,6 +42,17 @@ static char* test_insert() {
 }
 
 
+static char* test_insert_lots_of_items() {
+    ht_hash_table* ht = ht_new();
+    for (int i = 0; i < 20000; i++) {
+        char key[10];
+        snprintf(key, 10, "%d", i);
+        ht_insert(ht, key, "value");
+    }
+    return 0;
+}
+
+
 static char* test_search_with_invalid_key() {
     // New empty hash table
     ht_hash_table* ht = ht_new();
@@ -141,6 +152,7 @@ static char* test_resize_down() {
 
 static char* all_tests() {
     mu_run_test(test_insert);
+    mu_run_test(test_insert_lots_of_items);
     mu_run_test(test_search_with_invalid_key);
     mu_run_test(test_search_with_valid_key);
     mu_run_test(test_search_with_colliding_keys);

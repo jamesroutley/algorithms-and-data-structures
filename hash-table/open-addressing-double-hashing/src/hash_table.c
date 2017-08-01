@@ -130,7 +130,7 @@ static int ht_generic_hash(char* s, int a, int m) {
 static int ht_hash(char* s, int num_buckets, int attempt) {
     int hash_a = ht_generic_hash(s, 151, num_buckets);
     int hash_b = ht_generic_hash(s, 163, num_buckets);
-    return (hash_a + (attempt * hash_b)) % num_buckets;
+    return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
 }
 
 
