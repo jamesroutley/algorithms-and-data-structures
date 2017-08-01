@@ -103,6 +103,10 @@ static void ht_resize(ht_hash_table* ht, int direction) {
     ht->size = new_ht->size;
     new_ht->size = tmp_size;
 
+    int tmp_load = ht->load;
+    ht->load = new_ht->load;
+    new_ht->load = tmp_load;
+
     ht_item** tmp_items = ht->items;
     ht->items = new_ht->items;
     new_ht->items = tmp_items;
