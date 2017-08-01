@@ -14,13 +14,10 @@ static ht_item HT_DELETED_ITEM = {NULL, NULL};
 /*
  * Initialises a new item containing k: v
  */
-static ht_item* ht_new_item(char* k, char* v) {
+static ht_item* ht_new_item(const char* k, const char* v) {
     ht_item* i = xmalloc(sizeof(ht_item));
-    i->key = xmalloc(strlen(k) + 1);
-    i->value = xmalloc(strlen(v) + 1);
-    
-    strcpy(i->key, k);
-    strcpy(i->value, v);
+    i->key = strdup(k);
+    i->value = strdup(v);
 
     return i;
 }
@@ -43,7 +40,7 @@ static ht_hash_table* ht_new_sized(int size_index) {
     ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
     ht->size_index = size_index;
 
-    int base_size = 50 * pow(2, ht->size_index);
+    int base_size = 50 * (2 << ht->size_index);
     ht->size = next_prime(base_size);
 
     ht->count = 0;
@@ -88,8 +85,9 @@ static void ht_resize(ht_hash_table* ht, int direction) {
     ht_hash_table* new_ht = ht_new_sized(new_size_index);
     // Iterate through existing hash table, add all items to new
     for (int i = 0; i < ht->size; i++) {
-        if (ht->items[i] != NULL && ht->items[i] != HT_DELETED_ITEM) {
-            ht_insert(new_ht, ht->items[i]->key, ht->items[i]->value);
+        ht_item *it = ht->items[i];
+        if (it != NULL && it != HT_DELETED_ITEM) {
+            ht_insert(new_ht, it->key, it->value);
         }
     }
 
@@ -113,7 +111,7 @@ static void ht_resize(ht_hash_table* ht, int direction) {
 /*
  * Returns the hash of 's', an int between 0 and 'm'.
  */
-static int ht_generic_hash(char* s, int a, int m) {
+static int ht_generic_hash(const char* s, int a, int m) {
     long hash = 0;
     int len_s = strlen(s);
     for (int i = 0; i < len_s; i++) {
