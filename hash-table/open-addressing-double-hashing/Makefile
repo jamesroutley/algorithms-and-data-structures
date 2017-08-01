@@ -5,6 +5,9 @@ CFLAGS = -Wall -Werror -Wextra -g
 build: clean
 	${CC} ${CFLAGS} -o build/hash_table src/main.c src/hash_table.c src/xmalloc.c
 
+build-lib: clean
+	${CC} ${CFLAGS} -shared -o build/hash_table.so -fPIC src/hash_table.c src/xmalloc.c src/prime.c
+
 clean:
 	rm -rf build/
 	mkdir -p build/
