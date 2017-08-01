@@ -12,6 +12,7 @@ build-test: clean
 clean:
 	rm -rf build/
 	mkdir -p build/
+	$(MAKE) -C analytics clean
 
 test: build-test 
 	./build/hash_table_test
