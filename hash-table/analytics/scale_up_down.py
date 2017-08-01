@@ -2,7 +2,7 @@ import ht
 
 
 if __name__ == "__main__":
-    num_items = 20000
+    num_items = 100000
 
     hash_table = ht.new()
 
