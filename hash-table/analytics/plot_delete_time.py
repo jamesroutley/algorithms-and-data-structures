@@ -20,16 +20,16 @@ def plot(x, y):
 
 
 if __name__ == "__main__":
-    num_inserts = 10000
+    num_items = 1000
 
     hash_table = ht.new()
 
-    for i in range(num_inserts):
+    for i in range(num_items):
         ht.insert(hash_table, bytes(str(i), "utf-8"), b"value")
 
-    x = [None] * num_inserts
-    y = [None] * num_inserts
-    for i in range(num_inserts):
+    x = [None] * num_items
+    y = [None] * num_items
+    for i in range(num_items):
         result = timeit.timeit(
             "delete('{0}')".format(i),
             setup="from __main__ import delete",
