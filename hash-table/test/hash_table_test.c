@@ -53,6 +53,17 @@ static char* test_insert_lots_of_items() {
 }
 
 
+static char* test_insert_with_duplicate_key() {
+    ht_hash_table* ht = ht_new();
+    ht_insert(ht, "key", "value 1");
+    ht_insert(ht, "key", "value 2");
+
+    mu_assert("error, expecting ht->count == 1 ", ht->count == 1);
+
+    return 0;
+}
+
+
 static char* test_search_with_invalid_key() {
     // New empty hash table
     ht_hash_table* ht = ht_new();
@@ -153,6 +164,7 @@ static char* test_resize_down() {
 static char* all_tests() {
     mu_run_test(test_insert);
     mu_run_test(test_insert_lots_of_items);
+    mu_run_test(test_insert_with_duplicate_key);
     mu_run_test(test_search_with_invalid_key);
     mu_run_test(test_search_with_valid_key);
     mu_run_test(test_search_with_colliding_keys);
