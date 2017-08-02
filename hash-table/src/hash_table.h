@@ -3,11 +3,10 @@
 
 
 // ht_item is an item in the hash table
-typedef struct ht_item ht_item;
-struct ht_item {
+typedef struct ht_item {
     char* key;
     char* value;
-};
+} ht_item;
 
 
 typedef struct {
